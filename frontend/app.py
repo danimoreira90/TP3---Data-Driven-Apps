@@ -34,3 +34,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+from backend.main import load_agent
+
+st.title('Energy Efficiency Assistant')
+agent = load_agent()
+
+user_input = st.text_input("Ask something about energy efficiency:")
+if st.button('Get Answer'):
+    response = agent.invoke({"input": user_input})
+    st.write(response)
