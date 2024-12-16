@@ -1,5 +1,17 @@
 import streamlit as st
 import requests
+import sys
+import os
+from langchain_community.callbacks.streamlit import (
+    StreamlitCallbackHandler,
+)
+from backend.utils import MEMORY
+
+project_root = 'D:\\Pastas\\Infnet\\Infnet - 2024.2\\Desenvolvimento Data-Driven Apps Python\\tp3'
+sys.path.append(project_root)
+
+from backend.main import load_agent
+
 
 FASTAPI_BASE_URL = "http://localhost:8000"
 
@@ -35,7 +47,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-from backend.main import load_agent
+
 
 st.title('Energy Efficiency Assistant')
 agent = load_agent()
@@ -44,3 +56,47 @@ user_input = st.text_input("Ask something about energy efficiency:")
 if st.button('Get Answer'):
     response = agent.invoke({"input": user_input})
     st.write(response)
+
+st.header("Ask your question Padawan!")
+
+strategy = st.radio(
+    "Reasoning Strategy",
+    ("plan-and-solve", "zero-shot-react"),
+)
+
+tool_names = st.multiselect(
+    "Which tools would you like to use?",
+    [
+        "critical_search",
+        "llm-math",
+        "ddg-search",
+        "wolfram_alpha",
+        "google_search",
+        "wikipedia",
+        "arxiv",
+        "python_repl",
+    ],
+    ["ddg-search", "wolfram_alpha", "wikipedia"]
+)
+
+if st.sidebar.button("Clear message history"):
+    MEMORY.chat_memory.clear()
+    
+avatars = {
+    "human": "user",
+    "ai": "assistant"
+}
+for msg in MEMORY.chat_memory.messages:
+    st.chat_message(avatars[msg.type]).write(msg.content)
+    
+agent_chain = load_agent(tool_names=tool_names, strategy=strategy)
+
+if prompt := st.chat_input(placeholder="Ask me anything!!"):
+    st.chat_message("user").write(prompt)
+    with st.chat_message("assistant"):
+        st_callback = StreamlitCallbackHandler(st.container())
+        response = agent_chain.invoke(
+            {"input": prompt} ,
+            {"callbacks": [st_callback]}
+        )
+        st.write(response["output"])

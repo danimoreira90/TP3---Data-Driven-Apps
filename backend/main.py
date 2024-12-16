@@ -21,7 +21,8 @@ async def get_energy_data(limit: int = 5, query: str = ""):
 
 def load_agent():
     llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'), model_name="gpt-4")
-    tools = load_tools()
+    tool_names = ['ddg-search', 'wolfram_alpha', 'google_search', 'wikipedia', 'arxiv', 'python_repl', 'critical_search']
+    tools = load_tools(tool_names, llm=llm)
     agent = create_react_agent(llm=llm, tools=tools)
     return LLMChain(agent)
 
