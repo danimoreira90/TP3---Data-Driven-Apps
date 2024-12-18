@@ -1,17 +1,17 @@
-import streamlit as st
-import requests
 import sys
 import os
-from langchain_community.callbacks.streamlit import (
-    StreamlitCallbackHandler,
-)
-from backend.utils import MEMORY
+import streamlit as st
 
-project_root = 'D:\\Pastas\\Infnet\\Infnet - 2024.2\\Desenvolvimento Data-Driven Apps Python\\tp3'
+project_root = 'D:\\Pastas\\Infnet\\Infnet - 2024.2\\Desenvolvimento Data-Driven Apps Python\\TP3'
 sys.path.append(project_root)
+
+from backend.utils import MEMORY
 
 from backend.main import load_agent
 
+import requests
+
+from langchain_community.callbacks.streamlit import StreamlitCallbackHandler
 
 FASTAPI_BASE_URL = "http://localhost:8000"
 
@@ -43,6 +43,26 @@ def main():
                 st.write('Nenhum dado disponível para mostrar.')
         except Exception as e:
             st.error(f"Erro ao buscar dados: {str(e)}")
+
+
+def main():
+    st.title('Aplicação de Eficiência Energética')
+
+    # Adicionando uma barra lateral com opções de consulta
+    consulta_opcao = st.sidebar.selectbox(
+        "Escolha uma opção de consulta:",
+        ("Consulta a API da ANEEL", "Consulta ao modelo assistente de eficiência energética")
+    )
+
+    # Lógica para lidar com as escolhas na barra lateral
+    if consulta_opcao == "Consulta a API da ANEEL":
+        # Inclua aqui a lógica para consulta à API da ANEEL
+        st.subheader("Consulta a API da ANEEL")
+        # Adicione interatividade ou display de dados relacionados à API da ANEEL
+    elif consulta_opcao == "Consulta ao modelo assistente de eficiência energética":
+        # Inclua aqui a lógica para consulta ao modelo de eficiência energética
+        st.subheader("Consulta ao modelo assistente de eficiência energética")
+        # Adicione interatividade ou display de dados relacionados ao modelo assistente
 
 if __name__ == "__main__":
     main()
