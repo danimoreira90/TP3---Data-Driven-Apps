@@ -7,7 +7,7 @@ from langchain.agents import create_react_agent
 from langchain.chains import LLMChain
 from backend.tool_loader import load_tools
 from langchain_core.prompts import PromptTemplate
-
+from .prompt import prompt
 
 
 load_dotenv()
@@ -19,12 +19,14 @@ async def get_energy_data(limit: int = 5, query: str = ""):
     data = fetch_energy_data(limit, query)
     return data
 
-
+tool_names = ['ddg-search', 'wolfram_alpha', 'google_search', 'wikipedia', 'arxiv', 'python_repl', 'critical_search']
 
 def load_agent():
     llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'), model_name="gpt-4")
     tool_names = ['ddg-search', 'wolfram_alpha', 'google_search', 'wikipedia', 'arxiv', 'python_repl', 'critical_search']
     tools = load_tools(tool_names, llm=llm)
+    agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+
     
     # Define um prompt complexo com base na documentação
     template = '''
@@ -50,11 +52,10 @@ def load_agent():
     '''
     prompt = PromptTemplate.from_template(template, tool_names=tool_names, tools=tools)
     
-    # Cria o agente com o prompt complexo
-    agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
+
     
     return LLMChain(agent)
 
 if __name__ == "__main__":
-    agent = load_agent()
+    agent = load_agent(tool_names)
     print("Agent loaded successfully!")
